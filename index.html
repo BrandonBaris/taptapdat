@@ -32,6 +32,10 @@ var cursors;
 var stars;
 var score = 0;
 var scoreText;
+var charArray;
+var labelValue;
+var something;
+var something2;
 
 function create() {
 
@@ -64,14 +68,14 @@ function create() {
     ledge.body.immovable = true;*/
 
     // The player and its settings
-    player = game.add.sprite(32, game.world.height - 150, 'dude');
+    player = game.add.sprite(222, game.world.height - 800, 'dude');
 
     //  We need to enable physics on the player
     game.physics.arcade.enable(player);
 
     //  Player physics properties. Give the little guy a slight bounce.
-    player.body.bounce.y = 0.2;
-    player.body.gravity.y = 300;
+    player.body.bounce.y = 0;
+    player.body.gravity.y = 200;
     player.body.collideWorldBounds = true;
 
     //  Our two animations, walking left and right.
@@ -98,10 +102,17 @@ function create() {
     }
 
     //  The score
-    scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+    scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#123' });
 
     //  Our controls.
     cursors = game.input.keyboard.createCursorKeys();
+
+    //key gen
+    
+    something = 'abcdefghijklmnopqrstuvwxyz';
+    charArray = something.split('');
+    labelValue = charArray[Math.floor(Math.random() * (charArray.length ))];
+    something2 = game.add.text(400, 200, labelValue, { fontSize: '44px', fill: '#FFF' });
 
 }
 
@@ -140,9 +151,9 @@ function update() {
     }
     
     //  Allow the player to jump if they are touching the ground.
-    if (cursors.up.isDown && player.body.touching.down)
+    if (cursors.up.isDown)
     {
-        player.body.velocity.y = -350;
+        player.body.velocity.y = -100;
     }
 
 }
@@ -154,8 +165,8 @@ function gameOver (player, star) {
 
     //  Add and update the score
     score += 10;
-    scoreText.text = 'Score: ' + score;
-
+    scoreText.text = 'Score: ' + labelValue;
+    something2.text = labelValue;
 }
 
 </script>
