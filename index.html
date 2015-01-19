@@ -1,19 +1,22 @@
 <!doctype html> 
 <html lang="en"> 
 <head> 
-  <meta charset="UTF-8" />
-    <title>shitty game</title>
-  <script type="text/javascript" src="js/phaser.min.js"></script>
+<meta charset="UTF-8" />
+<title>shitty game</title>
+    <script type="text/javascript" src="js/phaser.min.js"></script>
     <style type="text/css">
         body {
             margin: 0 auto;
             width: 100%;
+            font-size: 10em;
         }
+
         div.centerit {
           margin: 0 auto;
           width: 100%;
         }
     </style>
+<link href='http://fonts.googleapis.com/css?family=Bangers|Arvo:700' rel='stylesheet' type='text/css'>    
 </head>
 <body>
 <div class="centerit">
@@ -24,18 +27,19 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create
 function preload() {
 
     game.load.image('background', 'assets/world_bg.png');
-    game.load.image('ground', 'assets/sun.png');
+    game.load.image('ground', 'assets/platform.png');
     game.load.image('star', 'assets/star.png');
     game.load.image('space', 'assets/space.jpg');
     game.load.spritesheet('dude', 'assets/bowser.png', 70, 110);
-
+    game.load.image('death', 'assets/ROFLMAO.gif');
+    // http://www.spriters-resource.com/snes/smarioworld/sheet/52778/
 }
 
 var already_pressed = false;
 var grav_strength = 700; // value of downward pull
 var dude_weight = 100; // value of mass the dude has that affects his velocity
-var boost_power = -140; // amount of upward velocity gain for each correct key
-var boost_penalty = 110; // amount of downward velocity penalized a bad key
+var boost_power = -200; // amount of upward velocity gain for each correct key
+var boost_penalty = 150; // amount of downward velocity penalized a bad key
 var player;
 var death_zone;
 var cursors;
@@ -46,9 +50,15 @@ var charArray;
 var labelValue;
 var main_string = 'abcdefghijklmnopqrstuvwxyz[];./1234567890-={}:"<>?ABCDEFGHIJKLMNOPQRSTUVQRSTUVWXYZ!@#$%^&*()_+';
 var the_correct_key;
+var startGameText;
 var something3;
 var current_key;
 var the_end = false;
+var scoreStyle = { font: '36px Bangers, Arial, sans-serif', fill: '#284f72' };
+var scoreStyleA = { font: '36px Bangers, Arial, sans-serif', fill: '#339933' };
+var letterStyle = { font: '96px Impact, sans-serif', fill: '#000' };
+var startGameTextStyle = { fontSize: '36px', fill: '#284f72', align: 'center' };
+var goodBadText;
 
 function create() {
 
@@ -65,16 +75,16 @@ function create() {
     death_zone.enableBody = true;
 
     // Here we create the ground.
-    var ground = death_zone.create(0, game.world.height - 30, 'ground');
+    var ground = death_zone.create(0, game.world.height, 'ground');
 
     //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
-    ground.scale.setTo(5, 2);
+    ground.scale.setTo(5, 100);
 
     //  This stops it from falling away when you jump on it
     ground.body.immovable = true;
 
     // The player and its settings
-    player = game.add.sprite(game.world.width/2-35, game.world.height - 777, 'dude');
+    player = game.add.sprite(game.world.width/2-35, game.world.height - 230, 'dude');
 
     //  We need to enable physics on the player
     game.physics.arcade.enable(player);
@@ -82,8 +92,10 @@ function create() {
     //  Player physics properties. Give the little guy a slight bounce.
 
     player.body.bounce.x = 1;
+    //player shouldnt bounce on floor, removes ceiling so player doesnt penalize for going too high
+    //player.body.bounce.y = 0.2;
     player.body.gravity.y = dude_weight;
-    player.body.velocity.x = 200;
+    player.body.velocity.x = 0;
     player.body.collideWorldBounds = true;
     
     //  Our two animations, walking left and right.
@@ -110,32 +122,45 @@ function create() {
     }
 
     //  The score
-    scoreText = game.add.text(150, 100,'---', { fontSize: '44px', fill: '#FFF' });
-    the_correct_key = game.add.text(game.world.centerX-200, game.world.centerY-100, 'Press the correct key to survive', { fontSize: '44px', fill: '#FFF' });
-    game.time.events.loop(Phaser.Timer.SECOND*3, keygen, this);
+    scoreText = game.add.text(20, 20,'', scoreStyle);
+    startGameText = game.add.text(game.world.centerX-200, game.world.centerY-200, 'Press the correct key to survive!', startGameTextStyle);
+    
+    goodBadText = game.add.text(game.world.centerX-38, game.world.centerY-250,'', scoreStyleA);
+
+    the_correct_key = game.add.text(game.world.centerX-200, game.world.centerY-100, '');
+
     //  Our controls.
     cursors = game.input.keyboard.createCursorKeys();
     game.input.keyboard.addCallbacks(this, null, null, keyPress);
 
-
+    actualGameTimer= game.time.events.add(Phaser.Timer.SECOND * 2, keygenEngine, this);
 
 }
+
+function keygenEngine(){
+    startGameText.text = '';
+    game.time.events.loop(Phaser.Timer.SECOND*2, keygen, this);
+
+}
+
 function keygen(){
     removeText();
     if ( the_end === false ){
-    already_pressed = false;
-    
+    already_pressed = false;    
     charArray = main_string.split('');
     labelValue = charArray[Math.floor(Math.random() * (charArray.length ))];
+    if (labelValue.match(/[a-z]/i)){
+        labelValue.toUpperCase();
+    }
 
-    the_correct_key = game.add.text(game.world.centerX, game.world.centerY-100, labelValue, { fontSize: '44px', fill: '#FFF' });
+    the_correct_key = game.add.text(game.world.centerX-30, game.world.centerY-100, labelValue, letterStyle);
     } else {
         removeText();
     }
 }
 
 function update() {
-    scoreText.text = "TIME: " + Math.floor(this.game.time.totalElapsedSeconds());
+    scoreText.text = 123+ Math.floor(this.game.time.totalElapsedSeconds()) + "  ";
 
     //  Collide the player and the stars with the death_zone
     //game.physics.arcade.collide(player, death_zone);
@@ -157,19 +182,13 @@ function update() {
         player.body.velocity.y = boost_power;
     }
 
- /*   current_key = game.input.keyboard.addKey(Phaser.Keyboard.A);
-
-    if (current_key.isDown)
-    {
-        player.body.velocity.y = -200;
-    }*/
-
-
 }
 
 function removeText() {
 
     the_correct_key.destroy();
+    startGameText.text = "";
+
 }
 
 function lucky_guy(player, star){
@@ -187,10 +206,11 @@ function game_over () {
 }
 
 function keyPress(char){
-    if ( the_end === false){
+    if ( the_end === false) {
+
         if (labelValue === char && already_pressed === false) {
             //removeText();
-            the_correct_key.text = "GOOD!";
+            goodBadText.text = "GOOD! ";
             already_pressed = true;
             //game.add.tween(player).to({x:game.world.randomX}, 500, Phaser.Easing.Linear.NONE, true, 0, 0, false);  
             player.body.velocity.y = boost_power;
@@ -198,27 +218,20 @@ function keyPress(char){
             var speedCheck = Math.floor(Math.random() * (4 - 0));
 
             if(speedCheck == 1) { player.body.velocity.x += -100; } 
-            if(speedCheck == 2) { player.body.velocity.x += 100; } 
+            if(speedCheck == 2) { player.body.velocity.x = 250; } 
             if(speedCheck == 3) { player.body.velocity.x += -100; } 
-            if(speedCheck == 4) { player.body.velocity.x += 100; } 
-        
-        } else 
-        {
-            player.body.velocity.y = boost_penalty;
+            if(speedCheck == 4) { player.body.velocity.x = 250; } 
+
+        } else {
+            goodBadText.text = "";
+            player.body.velocity.y += boost_penalty;
         }
-    } else 
-        {
-            // add reset timer
-            if (the_end === true){
-                game.add.text(game.world.centerX-200, game.world.centerY-200, 'F5 REFRESH', { fontSize: '44px', fill: '#777' });
-                
-            }
-        }
+    } else {
+        game.add.text(game.world.centerX-100, game.world.centerY-200, 'F5 REFRESH', letterStyle);
+
+    }
 }
 
-function game_time(){
- 
-}
 </script>
 </div>
 </body>
