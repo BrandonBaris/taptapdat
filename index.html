@@ -6,12 +6,17 @@
   <script type="text/javascript" src="build/phaser.min.js"></script>
     <style type="text/css">
         body {
-            margin: 0;
+            margin: 0 auto;
+            width: 100%;
+        }
+        div.centerit {
+          margin: 0 auto;
+          width: 100%;
         }
     </style>
 </head>
 <body>
-
+<div class="centerit">
 <script type="text/javascript">
 
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
@@ -19,16 +24,17 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create
 function preload() {
 
     game.load.image('space', 'image/space.jpg');
-    game.load.image('ground', 'assets/platform.png');
+    game.load.image('ground', 'assets/sun.png');
     game.load.image('star', 'assets/star.png');
     game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
 
 }
 
-var grav_strength = 600; // value of downward pull
-var dude_weight = 100; // value of mass the dude has that affects his velocity
-var boost_power = -120; // amount of upward velocity gain for each correct key
-var boost_penalty = 30; // amount of downward velocity penalized a bad key
+var already_pressed = false;
+var grav_strength = 700; // value of downward pull
+var dude_weight = 125; // value of mass the dude has that affects his velocity
+var boost_power = -140; // amount of upward velocity gain for each correct key
+var boost_penalty = 70; // amount of downward velocity penalized a bad key
 var player;
 var death_zone;
 var cursors;
@@ -57,10 +63,10 @@ function create() {
     death_zone.enableBody = true;
 
     // Here we create the ground.
-    var ground = death_zone.create(0, game.world.height - 50, 'ground');
+    var ground = death_zone.create(0, game.world.height - 30, 'ground');
 
     //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
-    ground.scale.setTo(2, 2);
+    ground.scale.setTo(5, 2);
 
     //  This stops it from falling away when you jump on it
     ground.body.immovable = true;
@@ -116,13 +122,14 @@ function create() {
 
     //  Our controls.
     cursors = game.input.keyboard.createCursorKeys();
-
     game.input.keyboard.addCallbacks(this, null, null, keyPress);
+
     game.time.events.loop(Phaser.Timer.SECOND*3, keygen, this);
 
 }
 function keygen(){
     removeText();
+    already_pressed = false;
     something = 'abcdefghijklmnopqrstuvwxyz[];./1234567890-={}:"<>?ABCDEFGHIJKLMNOPQRSTUVQRSTUVWXYZ!@#$%^&*()_+';
     charArray = something.split('');
     labelValue = charArray[Math.floor(Math.random() * (charArray.length ))];
@@ -143,6 +150,8 @@ function update() {
 
     //  Reset the players velocity (movement)
     player.body.velocity.x = 0;
+
+
 
     if (cursors.left.isDown)
     {
@@ -209,10 +218,11 @@ function game_over (player, star) {
 
 function keyPress(char){
 
-  if (labelValue === char)
+  if (labelValue === char && already_pressed === false)
     {
       removeText();
-  game.add.tween(player).to({x:game.world.randomX}, 2000, Phaser.Easing.Linear.NONE, true, 0, 0, false);  
+      game.add.tween(player).to({x:game.world.randomX}, 2000, Phaser.Easing.Linear.NONE, true, 0, 0, false);  
+      already_pressed = true;
 
       player.body.velocity.y = boost_power;
     } else {
@@ -223,6 +233,6 @@ function game_time(){
 
 }
 </script>
-
+</div>
 </body>
 </html>
