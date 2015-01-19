@@ -3,7 +3,7 @@
 <head> 
   <meta charset="UTF-8" />
     <title>shitty game</title>
-  <script type="text/javascript" src="build/phaser.min.js"></script>
+  <script type="text/javascript" src="js/phaser.min.js"></script>
     <style type="text/css">
         body {
             margin: 0 auto;
@@ -23,16 +23,16 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create
 
 function preload() {
 
-    game.load.image('space', 'image/space.jpg');
+    game.load.image('background', 'assets/world_bg.png');
     game.load.image('ground', 'assets/sun.png');
     game.load.image('star', 'assets/star.png');
-    game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
+    game.load.spritesheet('dude', 'assets/bowser.png', 70, 110);
 
 }
 
 var already_pressed = false;
 var grav_strength = 700; // value of downward pull
-var dude_weight = 125; // value of mass the dude has that affects his velocity
+var dude_weight = 100; // value of mass the dude has that affects his velocity
 var boost_power = -140; // amount of upward velocity gain for each correct key
 var boost_penalty = 70; // amount of downward velocity penalized a bad key
 var player;
@@ -54,7 +54,7 @@ function create() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
     //  A simple background for our game
-    game.add.sprite(0, 0, 'space');
+    game.add.sprite(0, 0, 'background');
 
     //  The death_zone group contains the ground and the 2 ledges we can jump on
     death_zone = game.add.group();
@@ -79,23 +79,25 @@ function create() {
     ledge.body.immovable = true;*/
 
     // The player and its settings
-    player = game.add.sprite(222, game.world.height - 777, 'dude');
+    player = game.add.sprite(game.world.width/2-35, game.world.height - 777, 'dude');
 
     //  We need to enable physics on the player
     game.physics.arcade.enable(player);
 
     //  Player physics properties. Give the little guy a slight bounce.
 
-    player.body.bounce.y = 0;
+    player.body.bounce.y = 0.2;
+    player.body.bounce.x = 0.2;
     player.body.gravity.y = dude_weight;
+    player.body.velocity.x = 200;
     player.body.collideWorldBounds = true;
-/*    game.add.tween(player).to({x:randomxtween}, 2000, Phaser.Easing.Bounce.NONE, true, 0, 1000, true);  
-*/
+    /*    game.add.tween(player).to({x:randomxtween}, 2000, Phaser.Easing.Bounce.NONE, true, 0, 1000, true);  
+    */
 
     //  Our two animations, walking left and right.
-    player.animations.add('spin', [4, 3, 2, 6, 5], 30, true);
+    //player.animations.add('spin', [4, 3, 2, 6, 5], 30, true);
     player.animations.add('left', [0, 1, 2, 3], 10, true);
-    player.animations.add('right', [5, 6, 7, 8], 10, true);
+    player.animations.add('right', [4, 5, 6, 7], 10, true);
 
     //  Finally some stars to collect
     stars = game.add.group();
@@ -148,29 +150,10 @@ function update() {
     //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
     game.physics.arcade.overlap(player, stars, lucky_guy, null, this);
 
-    //  Reset the players velocity (movement)
-    player.body.velocity.x = 0;
-
-
-
-    if (cursors.left.isDown)
-    {
-        //  Move to the left
-        player.body.velocity.x = -10;
-
-        player.animations.play('spin');
-    }
-    else if (cursors.right.isDown)
-    {
-        //  Move to the right
-        player.body.velocity.x = 10;
-
+    if (player.body.velocity.x >0){
         player.animations.play('right');
-    }
-    else
-    {
-        //  Stand still
-        player.animations.play('spin',30, true);
+    } else {
+        player.animations.play('left');
     }
     
     //  Allow the player to jump if they are touching the ground.
@@ -192,13 +175,11 @@ function update() {
 function removeText() {
 
     the_correct_key.destroy();
-
 }
 
 function lucky_guy(player, star){
-  star.kill();
-  player.body.velocity.y = boost_power;
-  player.animations.play('spin',100, false);
+    star.kill();
+    player.body.velocity.y = boost_power;
 }
 
 function tween_dude(xtween){
@@ -218,17 +199,28 @@ function game_over (player, star) {
 
 function keyPress(char){
 
-  if (labelValue === char && already_pressed === false)
-    {
-      removeText();
-      game.add.tween(player).to({x:game.world.randomX}, 2000, Phaser.Easing.Linear.NONE, true, 0, 0, false);  
-      already_pressed = true;
+    if (labelValue === char && already_pressed === false) {
+        //removeText();
+        the_correct_key.text = "GOOD!";
+        already_pressed = true;
+        //game.add.tween(player).to({x:game.world.randomX}, 500, Phaser.Easing.Linear.NONE, true, 0, 0, false);  
+        player.body.velocity.y = boost_power;
 
-      player.body.velocity.y = boost_power;
+        var speedCheck = Math.floor(Math.random() * (4 - 0));
+
+        if(speedCheck == 1) { player.body.velocity.x += -200; } 
+        if(speedCheck == 2) { player.body.velocity.x += 200; } 
+        if(speedCheck == 3) { player.body.velocity.x += -200; } 
+        if(speedCheck == 4) { player.body.velocity.x += 200; } 
+
+
+       
+    
     } else {
-      player.body.velocity.y = boost_penalty;
+        player.body.velocity.y = boost_penalty;
     }
 }
+
 function game_time(){
 
 }
