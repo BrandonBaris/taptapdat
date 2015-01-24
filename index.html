@@ -2,7 +2,7 @@
 <html lang="en"> 
 <head> 
 <meta charset="UTF-8" />
-<title>shitty game</title>
+<title>Keyboard</title>
     <script type="text/javascript" src="js/phaser.min.js"></script>
     <style type="text/css">
         body {
@@ -36,9 +36,10 @@ function preload() {
 }
 
 var already_pressed = false;
-var grav_strength = 900; // value of downward pull
-var dude_weight = 150; // value of mass the dude has that affects his velocity
-var boost_power = -215; // amount of upward velocity gain for each correct key
+_power = -215; // amount of upward velocity gain for each correct key
+var grav_strength = 900 + time_coefficient; // value of downward pull
+var dude_weight = 150 ; // value of mass the dude has that affects his velocity
+var boost_power = -195; // amount of upward velocity gain for each correct key
 var boost_penalty = 300; // amount of downward velocity penalized a bad key
 var player;
 var death_zone;
@@ -50,6 +51,7 @@ var charArray;
 var labelValue;
 /* the main string that hold all the playable keys */
 var main_string = 'abcdefghijklmnopqrstuvwxyz[];./1234567890-={}:"<>?!@#$%^&*()_+';
+
 var the_correct_key;
 var startGameText;
 var something3;
@@ -60,6 +62,7 @@ var scoreStyleA = { font: '36px Bangers, Arial, sans-serif', fill: '#339933' };
 var letterStyle = { font: '96px Impact, sans-serif', fill: '#000' };
 var startGameTextStyle = { fontSize: '36px', fill: '#284f72', align: 'center' };
 var goodBadText;
+var time_coefficient;
 
 function create() {
 
@@ -72,7 +75,11 @@ function create() {
     //  The death_zone
     death_zone = game.add.group();
     death_zone.enableBody = true;
+
+    // Here we create the ground.
     var ground = death_zone.create(0, game.world.height-7, 'ground');
+
+    //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
     ground.scale.setTo(5, 100);
     ground.body.immovable = true;
 
@@ -85,11 +92,15 @@ function create() {
     //  Player physics properties. Give the  guy a slight bounce.
 
     player.body.bounce.x = 1;
+
+    //player shouldnt bounce on floor, removes ceiling so player doesnt penalize for going too high
+    //player.body.bounce.y = 0.2;
     player.body.gravity.y = dude_weight;
     player.body.velocity.x = 0;
     player.body.collideWorldBounds = true;
     
     //  Our two animations
+
     player.animations.add('left', [0, 1, 2, 3], 10, true);
     player.animations.add('right', [4, 5, 6, 7], 10, true);
 
@@ -102,7 +113,8 @@ function create() {
       for (var i = 0; i < 20; i++)
     {
         //  Create a star inside of the 'stars' group
-        var star = stars.create(i * 40, 200, 'star');
+
+        var star = stars.create(i * 40, game.world.height-40, 'star');
 
         //  Let gravity pull them down to place
         star.body.gravity.y = grav_strength;
@@ -165,11 +177,13 @@ function update() {
     }
     
     //  CHEAT MODE -- USED FOR TESTING
- /*   if (cursors.up.isDown)
-    {
+    /*   
+    if (cursors.up.isDown){
         player.body.velocity.y = boost_power;
     }
-*/
+    */
+    time_coex_generate();   
+
 }
 
 function removeText() {
@@ -190,7 +204,13 @@ function game_over () {
     game.add.sprite(0, 0, 'space');
     game.add.text(game.world.centerX-200, game.world.centerY-100, 'GAME OVER', { fontSize: '44px', fill: '#FFF' });
     the_end = true;
+}
 
+function time_coex_generate() {
+    if ( (this.game.time.totalElapsedSeconds()) % 10 === 0 && player.body.gravity.y < 1000){
+        time_coefficient += 30;
+        player.body.gravity.y = time_coefficient;
+    }
 }
 
 function keyPress(char){
