@@ -36,8 +36,8 @@ function preload() {
 }
 
 var already_pressed = false;
-var grav_strength = 900; // value of downward pull
-var dude_weight = 150; // value of mass the dude has that affects his velocity
+var grav_strength = 900 + time_coefficient; // value of downward pull
+var dude_weight = 150 ; // value of mass the dude has that affects his velocity
 var boost_power = -195; // amount of upward velocity gain for each correct key
 var boost_penalty = 300; // amount of downward velocity penalized a bad key
 var player;
@@ -48,7 +48,7 @@ var score = 0;
 var scoreText;
 var charArray;
 var labelValue;
-var main_string = 'abcdefghijklmnopqrstuvwxyz[];./1234567890-={}:"<>?!@#$%^&*()_+';
+var main_string = 'abcdefghijklmnopqrstuvwxyz';
 var the_correct_key;
 var startGameText;
 var something3;
@@ -95,7 +95,7 @@ function create() {
     player.body.bounce.x = 1;
     //player shouldnt bounce on floor, removes ceiling so player doesnt penalize for going too high
     //player.body.bounce.y = 0.2;
-    player.body.gravity.y = dude_weight + time_coefficient;
+    player.body.gravity.y = dude_weight;
     player.body.velocity.x = 0;
     player.body.collideWorldBounds = true;
     
@@ -113,7 +113,7 @@ function create() {
       for (var i = 0; i < 20; i++)
     {
         //  Create a star inside of the 'stars' group
-        var star = stars.create(i * 40, 200, 'star');
+        var star = stars.create(i * 40, game.world.height-40, 'star');
 
         //  Let gravity do its thing
         star.body.gravity.y = grav_strength;
@@ -180,6 +180,7 @@ function update() {
     {
         player.body.velocity.y = boost_power;
     }
+    time_coex_generate();   
 
 }
 
@@ -205,8 +206,8 @@ function game_over () {
 }
 
 function time_coex_generate() {
-    if( (this.game.time.totalElapsedSeconds()) % 10 === 0 ){
-        time_coefficient += 30;
+    if ( (this.game.time.totalElapsedSeconds()) % 10 === 0 ){
+        time_coefficient += 40;
     }
 }
 
