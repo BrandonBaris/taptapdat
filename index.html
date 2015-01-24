@@ -82,24 +82,21 @@ function create() {
     //  We need to enable physics on the player
     game.physics.arcade.enable(player);
 
-    //  Player physics properties. Give the little guy a slight bounce.
+    //  Player physics properties. Give the  guy a slight bounce.
 
     player.body.bounce.x = 1;
-    //player shouldnt bounce on floor, removes ceiling so player doesnt penalize for going too high
-    //player.body.bounce.y = 0.2;
     player.body.gravity.y = dude_weight;
     player.body.velocity.x = 0;
     player.body.collideWorldBounds = true;
     
-    //  Our two animations, walking left and right.
-    //player.animations.add('spin', [4, 3, 2, 6, 5], 30, true);
+    //  Our two animations
     player.animations.add('left', [0, 1, 2, 3], 10, true);
     player.animations.add('right', [4, 5, 6, 7], 10, true);
 
     //  Finally some stars to collect
     stars = game.add.group();
 
-    //  We will enable physics for any star that is created in this group
+    //  We will enable physics for the stars
     stars.enableBody = true;
 
       for (var i = 0; i < 20; i++)
@@ -107,12 +104,12 @@ function create() {
         //  Create a star inside of the 'stars' group
         var star = stars.create(i * 40, 200, 'star');
 
-        //  Let gravity do its thing
+        //  Let gravity pull them down to place
         star.body.gravity.y = grav_strength;
 
     }
 
-    //  The score
+    //  The time score
     scoreText = game.add.text(20, 20,'', scoreStyle);
     startGameText = game.add.text(game.world.centerX-200, game.world.centerY-200, 'Press the correct key to survive!', startGameTextStyle);
     
@@ -120,7 +117,7 @@ function create() {
 
     the_correct_key = game.add.text(game.world.centerX-200, game.world.centerY-100, '');
 
-    //  Our controls.
+    //  creating the controls and the cheat controls
     cursors = game.input.keyboard.createCursorKeys();
     game.input.keyboard.addCallbacks(this, null, null, keyPress);
 
@@ -167,12 +164,12 @@ function update() {
         player.animations.play('left');
     }
     
-    //  Allow the player to jump if they are touching the ground.
-    if (cursors.up.isDown)
+    //  CHEAT MODE -- USED FOR TESTING
+ /*   if (cursors.up.isDown)
     {
         player.body.velocity.y = boost_power;
     }
-
+*/
 }
 
 function removeText() {
