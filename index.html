@@ -206,8 +206,9 @@ function game_over () {
 }
 
 function time_coex_generate() {
-    if ( (this.game.time.totalElapsedSeconds()) % 10 === 0 ){
-        time_coefficient += 40;
+    if ( (this.game.time.totalElapsedSeconds()) % 10 === 0 && player.body.gravity.y < 1000){
+        time_coefficient += 30;
+        player.body.gravity.y = time_coefficient;
     }
 }
 
