@@ -1,0 +1,22 @@
+{
+  "name": "taptapdat",
+  "version": "1.0.0",
+  "description": "A keyboard game",
+  "main": "game.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BrandonBaris/taptapdat.git"
+  },
+  "author": "Brandon and Bradford Baris",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BrandonBaris/taptapdat/issues"
+  },
+  "homepage": "https://github.com/BrandonBaris/taptapdat",
+  "dependencies": {
+    "phaser": "^2.3.0"
+  }
+}
